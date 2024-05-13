@@ -1,12 +1,14 @@
 index.html
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de senha</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <section class="conteudo">
         <div class="conteudo-titulo">
@@ -16,7 +18,7 @@ index.html
         </div>
         <div class="conteudo-senha">
             <label for="senha">Senha</label>
-            <input name="senha" type="text" id="campo-senha">
+            <input name="senha" type="text" id="campo-senha" readonly>
         </div>
         <div class="parametro">
             <h3 class="parametro-titulo">Personalize sua senha</h3>
@@ -51,21 +53,20 @@ index.html
                 <div class="parametro-senha">
                     <h4 class="parametro-senha__titulo">Força da senha</h4>
                     <div class="barra"></div>
-                    <div class="forca forte"></div>
                     <div class="forca fraca"></div>
                     <div class="parametro-senha-textos">
                         <p>Fraca</p>
                         <p>Média</p>
-@@ -62,6 +62,6 @@ <h4 class="parametro-senha__titulo">Força da senha</h4>
+                        <p>Forte</p>
+                    </div>
+                    <p class="entropia"></p>
+                </div>
             </div>
         </div>
     </section>
-</body>
-
     <script src="main.js"></script>
 </body> 
 </html>
-
 
 
 
@@ -73,38 +74,90 @@ main.js
 const numeroSenha = document.querySelector('.parametro-senha__texto');
 let tamanhoSenha = 12;
 numeroSenha.textContent = tamanhoSenha;
-
+const letrasMaiusculas = 'ABCDEFGHIJKLMNOPQRSTUVXYWZ';
+const letrasMinusculas = 'abcdefghijklmnopqrstuvxywz';
+const numeros = '0123456789';
+const simbolos = '!@%*?';
 const botoes = document.querySelectorAll('.parametro-senha__botao');
+const campoSenha = document.querySelector('#campo-senha');
+const checkbox = document.querySelectorAll('.checkbox');
+const forcaSenha = document.querySelector('.forca');
 
 botoes[0].onclick = diminuiTamanho;
 botoes[1].onclick = aumentaTamanho;
 
-function diminuiTamanho(){
-    if (tamanhoSenha > 1){
-       // tamanhoSenha = tamanhoSenha-1;
+function diminuiTamanho() {
+    if (tamanhoSenha > 1) {
+        // tamanhoSenha = tamanhoSenha-1;
         tamanhoSenha--;
     }
     numeroSenha.textContent = tamanhoSenha;
+    geraSenha();
 }
-function aumentaTamanho(){
-    if (tamanhoSenha < 20){
-       // tamanhoSenha = tamanhoSenha+1;
-       tamanhoSenha++;
+function aumentaTamanho() {
+    if (tamanhoSenha < 20) {
+        // tamanhoSenha = tamanhoSenha+1;
+        tamanhoSenha++;
     }
     numeroSenha.textContent = tamanhoSenha;
+    geraSenha();
 }
 
-console.log(botoes);
+for (i = 0; i < checkbox.length; i++) {
+    checkbox[i].onclick = geraSenha;
+}
+
+geraSenha();
+
+function geraSenha() {
+    let alfabeto = '';
+    if (checkbox[0].checked) {
+        alfabeto = alfabeto + letrasMaiusculas;
+    }
+    if (checkbox[1].checked) {
+        alfabeto = alfabeto + letrasMinusculas;
+    }
+    if (checkbox[2].checked) {
+        alfabeto = alfabeto + numeros;
+    }
+    if (checkbox[3].checked) {
+        alfabeto = alfabeto + simbolos;
+    }
+    let senha = '';
+    for (let i = 0; i < tamanhoSenha; i++) {
+        let numeroAleatorio = Math.random() * alfabeto.length;
+        numeroAleatorio = Math.floor(numeroAleatorio);
+        senha = senha + alfabeto[numeroAleatorio];
+    }
+    campoSenha.value = senha;
+    classificaSenha(alfabeto.length);
+
+}
+
+function classificaSenha(tamanhoAlfabeto){
+    let entropia = tamanhoSenha * Math.log2(tamanhoAlfabeto);
+    console.log(entropia);
+    forcaSenha.classList.remove('fraca','media','forte');
+    if (entropia > 57){
+        forcaSenha.classList.add('forte');
+    } else if (entropia > 35 && entropia < 57 ) {
+        forcaSenha.classList.add('media');
+    } else if (entropia <= 35){
+        forcaSenha.classList.add('fraca');
+    }
+    const valorEntropia = document.querySelector('.entropia');
+    valorEntropia.textContent = 2**Math.floor(entropia)/(100e6*60*60*24);
+}
 
 style.css
 @import url('https://fonts.googleapis.com/css2?family=Roboto&family=Roboto+Mono&display=swap');
 
 :root{
-    --branco: rgb(201, 189, 189);
+    --branco: white;
     --cor-de-fundo: #00162E;
     --fundo-senha: #00244D;
     --fundo-texto: #001E40;
-    --borda: #92a1b3;
+    --borda: #0075FF;
     --roboto: 'Roboto', sans-serif;
     --roboto-mono: 'Roboto Mono', monospace;
 }
@@ -227,14 +280,14 @@ label{
 }
 .fraca{
     width: 25%;
-    background-color: #551920; 
+    background-color: #E71B32; 
 }
 .media{
-    background-color: #bbb80f;
+    background-color: #FAF408;
     width: 50%;
 }
 .forte{
-    background-color: #43b87f;
+    background-color: #00FF85;
     width: 100%;
 }
 
@@ -249,3 +302,5 @@ label{
         flex-direction: row;
     }
 }
+
+
